@@ -1,9 +1,12 @@
-const ADMIN_KEY = "123segredo"; // senha do barbeiro
+// Agora buscamos direto do ambiente
+const ADMIN_KEY = process.env.ADMIN_KEY; 
 
 module.exports = function(app, db) {
     app.get("/agenda/:data", async (req, res) => {
-        if (req.headers.authorization !== ADMIN_KEY)
+        // O valor enviado no Header 'Authorization' deve ser igual ao do .env
+        if (req.headers.authorization !== ADMIN_KEY) {
             return res.sendStatus(401);
+        }
 
         try {
             const result = await db.query(
@@ -17,8 +20,9 @@ module.exports = function(app, db) {
     });
 
     app.delete("/delete/:id", async (req, res) => {
-        if (req.headers.authorization !== ADMIN_KEY)
+        if (req.headers.authorization !== ADMIN_KEY) {
             return res.sendStatus(401);
+        }
 
         try {
             await db.query(
