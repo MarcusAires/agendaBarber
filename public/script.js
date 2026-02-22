@@ -4,21 +4,55 @@ const dataInput = document.getElementById("data");
 const form = document.getElementById("form");
 
 // Definir a data mínima como o dia de hoje
-const hoje = new Date();
-const local = hoje.getFullYear() + "-" + 
-              String(hoje.getMonth() + 1).padStart(2, "0") + "-" + 
-              String(hoje.getDate()).padStart(2, "0");
+let dataAtual = new Date();
+const dataInputHidden = document.getElementById("data");
+const dataExibicao = document.getElementById("dataExibicao");
+const btnPrev = document.getElementById("btnPrev");
 
-dataInput.value = local;
-dataInput.min = local; 
+// Função para formatar a data para o banco (YYYY-MM-DD)
+function formatarParaISO(date) {
+    return date.toISOString().split('T')[0];
+}
 
-let horaSelecionada = null; 
+// Função para formatar a data para o humano (Ex: Sáb, 21 de Fev)
+function formatarParaExibicao(date) {
+    return date.toLocaleDateString('pt-BR', { 
+        weekday: 'short', 
+        day: '2-digit', 
+        month: 'short' 
+    }).replace('.', '');
+}
 
-dataInput.addEventListener("input", carregar);
+function atualizarInterfaceData() {
+    const hoje = new Date();
+    hoje.setHours(0, 0, 0, 0);
+    const selecionada = new Date(dataAtual);
+    selecionada.setHours(0, 0, 0, 0);
+
+    // Atualiza o texto e o input escondido
+    dataExibicao.innerText = formatarParaExibicao(dataAtual);
+    dataInputHidden.value = formatarParaISO(dataAtual);
+
+    // No cliente, impede de voltar para o passado
+    if (btnPrev) {
+        btnPrev.disabled = selecionada <= hoje;
+    }
+
+    // Chama a função de carregar os horários (que você já tem)
+    carregar();
+}
+
+function alterarData(dias) {
+    dataAtual.setDate(dataAtual.getDate() + dias);
+    atualizarInterfaceData();
+}
+
+// Inicia a página
+atualizarInterfaceData();
 
 async function carregar() {
     const data = dataInput.value;
-    form.style.display = "none"; 
+    form.style.display = "none";
     horaSelecionada = null;
 
     try {
@@ -39,7 +73,7 @@ async function carregar() {
 
             div.onclick = () => {
                 horaSelecionada = h;
-                form.style.display = "block"; 
+                form.style.display = "block";
                 form.scrollIntoView({ behavior: "smooth" });
             };
 
@@ -58,6 +92,10 @@ async function confirmar() {
     const data = dataInput.value;
     const hora = horaSelecionada;
 
+    const btn = document.getElementById("agendar-btn");
+    btn.innerText = "Agendando... Aguarde";
+    btn.disabled = true;
+
     if (!nome || !telefone) return alert("Preencha nome e WhatsApp!");
     if (!hora) return alert("Selecione um horário!");
 
@@ -75,21 +113,21 @@ async function confirmar() {
         if (res.ok) {
             const dados = await res.json();
             const textoMsg = `*BARBEARIA - CONFIRMAÇÃO*
-✅ Agendado com sucesso!
-👤 Nome: ${nome}
-✂️ Serviço: ${servico}
-📅 Data: ${data}
-⏰ Hora: ${hora}
+Agendado com sucesso!
+Nome: ${nome}
+Serviço: ${servico}
+Data: ${data}
+Hora: ${hora}
 
-Para cancelar, use seu tel no site.`;
+Para cancelar, use seu número de telefone no site.`;
 
             const msgFormatada = encodeURIComponent(textoMsg);
-            const seuNumeroAdmin = "5584999479036"; 
-            
+            const seuNumeroAdmin = "5584999479036";
+
             window.open(`https://wa.me/${seuNumeroAdmin}?text=${msgFormatada}`, '_blank');
-            
+
             alert("Agendamento realizado!");
-            location.reload(); 
+            location.reload();
         } else {
             const erroTxt = await res.text();
             alert("Erro: " + erroTxt);
@@ -102,11 +140,11 @@ Para cancelar, use seu tel no site.`;
 async function buscarPorTelefone() {
     let tel = document.getElementById("buscaTelefone").value.trim();
     const lista = document.getElementById("resultadoBusca");
-    
+
     if (!tel) return alert("Digite seu WhatsApp.");
 
     // TRATAMENTO DO TELEFONE NA BUSCA (Crucial!)
-    tel = tel.replace(/\D/g, ''); 
+    tel = tel.replace(/\D/g, '');
     if (tel.length <= 11) tel = "55" + tel;
 
     lista.innerHTML = "Procurando...";

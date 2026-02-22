@@ -1,17 +1,24 @@
 <!DOCTYPE html>
 <html lang="pt-br">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="style.css">
     <title>Barbearia - Agendamento</title>
 </head>
+
 <body>
 
     <div class="data-container">
         <h2>Agendar horário</h2>
         <label for="data">Selecione a Data:</label>
-        <input type="date" id="data">
+        <div class="date-controls">
+            <button type="button" class="btn-seta" id="btnPrev" onclick="alterarData(-1)">❮</button>
+            <div id="dataExibicao" class="data-display">Seg, 21 de Fev</div>
+            <button type="button" class="btn-seta" id="btnNext" onclick="alterarData(1)">❯</button>
+        </div>
+        <input type="hidden" id="data">
     </div>
 
     <div class="horarios-wrapper">
@@ -20,22 +27,23 @@
 
     <div id="form" class="horarios-wrapper" style="display:none; margin-top: 20px; padding: 20px;">
         <h3 style="margin-bottom:15px; text-align: center;">Finalizar Agendamento</h3>
-        
+
         <input id="nome" placeholder="Seu Nome (Obrigatório)">
-        
+
         <div style="position: relative; width: 100%;">
-            <span style="position: absolute; left: 12px; top: 50%; transform: translateY(-50%); font-weight: bold; color: #666;">+55</span>
+            <span
+                style="position: absolute; left: 12px; top: 50%; transform: translateY(-50%); font-weight: bold; color: #666;">+55</span>
             <input id="telefone" type="tel" placeholder="(00) 00000-0000" style="padding-left: 45px;">
         </div>
 
         <input id="email" type="email" placeholder="E-mail (Opcional)" style="margin-top: 10px;">
-        
+
         <select id="servico">
             <option>Corte</option>
             <option>Barba</option>
             <option>Corte + Barba</option>
         </select>
-        
+
         <button type="button" id="agendar-btn" onclick="confirmar()">Confirmar e Enviar WhatsApp</button>
     </div>
 
@@ -43,16 +51,20 @@
 
     <div class="data-container">
         <h3>Meus Agendamentos</h3>
-        <p style="font-size: 14px; color: #666; margin-bottom: 10px;">Digite o seu WhatsApp para ver ou cancelar horários:</p>
-        
+        <p style="font-size: 14px; color: #666; margin-bottom: 10px;">Digite o seu WhatsApp para ver ou cancelar
+            horários:</p>
+
         <div style="display: flex; gap: 8px; width: 100%;">
             <div style="position: relative; flex: 1;">
-                <span style="position: absolute; left: 12px; top: 50%; transform: translateY(-50%); font-weight: bold; color: #666;">+55</span>
-                <input id="buscaTelefone" type="tel" placeholder="(00) 00000-0000" style="margin: 0; padding-left: 45px; width: 100%;">
+                <span
+                    style="position: absolute; left: 12px; top: 50%; transform: translateY(-50%); font-weight: bold; color: #666;">+55</span>
+                <input id="buscaTelefone" type="tel" placeholder="(00) 00000-0000"
+                    style="margin: 0; padding-left: 45px; width: 100%;">
             </div>
-            <button type="button" onclick="buscarPorTelefone()" style="margin: 0; width: auto; padding: 0 20px;">🔍</button>
+            <button type="button" onclick="buscarPorTelefone()"
+                style="margin: 0; width: auto; padding: 0 20px;">🔍</button>
         </div>
-        
+
         <div id="resultadoBusca" style="margin-top: 15px; width: 100%;"></div>
     </div>
 
@@ -60,11 +72,12 @@
     <script>
         // Configura a máscara para o campo de agendamento
         const maskOptions = { mask: '(00) 00000-0000' };
-        
+
         IMask(document.getElementById('telefone'), maskOptions);
         IMask(document.getElementById('buscaTelefone'), maskOptions);
     </script>
 
     <script src="script.js"></script>
 </body>
+
 </html>

@@ -1,4 +1,6 @@
-/* Global e Centralização */
+/* ==========================================================================
+   Configurações Globais
+   ========================================================================== */
 * {
     box-sizing: border-box;
     margin: 0;
@@ -6,36 +8,38 @@
 }
 
 body {
-    font-family: 'Segoe UI', Roboto, sans-serif;
+    font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
     background-color: #f0f2f5;
     display: flex;
     flex-direction: column;
     align-items: center;
     padding: 20px;
     min-height: 100vh;
+    color: #333;
 }
 
-/* Área de Seleção de Data (Estilizada à Esquerda/Topo) */
+/* ==========================================================================
+   Área de Seleção de Data (Topo)
+   ========================================================================== */
 .data-container {
     width: 100%;
     max-width: 450px;
     margin-bottom: 25px;
     display: flex;
     flex-direction: column;
-    align-items: flex-start; /* Alinha o label e input à esquerda */
 }
 
 label {
-    font-size: 14px;
-    font-weight: bold;
-    color: #666;
+    font-size: 12px;
+    font-weight: 800;
+    color: #888;
     margin-bottom: 8px;
     text-transform: uppercase;
+    letter-spacing: 1px;
 }
 
+/* ESTA É A PARTE CRÍTICA: O INPUT DE DATA */
 input[type="date"] {
-    appearance: none;
-    -webkit-appearance: none;
     width: 100%;
     padding: 15px;
     border: 2px solid #000;
@@ -44,58 +48,86 @@ input[type="date"] {
     font-weight: bold;
     background: white;
     cursor: pointer;
-    box-shadow: 4px 4px 0px rgba(0,0,0,0.1); /* Efeito 3D sutil */
+    box-shadow: 4px 4px 0px rgba(0, 0, 0, 0.1);
+    
+    /* ESSENCIAIS PARA MOBILE */
+    position: relative;
+    -webkit-tap-highlight-color: transparent;
+    display: block;
+    min-height: 55px; /* Garante área de toque no celular */
 }
 
-/* Container que segura a lista */
+/* Garante que o ícone do calendário (que o celular usa como gatilho) 
+   ocupe o campo inteiro, mesmo que esteja invisível */
+input::-webkit-calendar-picker-indicator {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    width: auto;
+    height: auto;
+    color: transparent;
+    background: transparent;
+}
+/* ==========================================================================
+   Containers e Wrappers (Scroll)
+   ========================================================================== */
 .horarios-wrapper {
     width: 100%;
     max-width: 450px;
     background: white;
     border-radius: 20px;
-    overflow: hidden; /* Garante que os cards não 'vazem' pelas bordas arredondadas */
-    box-shadow: 0 10px 25px rgba(0,0,0,0.05);
+    overflow: hidden; /* Mantém as bordas arredondadas nos slots */
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.05);
     margin: 0 auto;
 }
 
-/* A lista interna onde o scroll acontece */
 #horarios, #lista {
     display: flex;
     flex-direction: column;
     gap: 12px;
     padding: 20px;
-    max-height: 450px; /* Altura fixa para ativar o scroll */
-    overflow-y: auto;  /* Habilita a rolagem vertical */
-}
-h3{
-   margin: 10px; 
-}
-#servico, #nome, #telefone, #email{
-    display: flex;
-    position: center;
-    margin: 10px;
-    border-radius: 12px;
-        appearance: none;
-    -webkit-appearance: none;
-        padding: 10px;
-    border: 1px solid #000;
-    font-size: 12px;
-    background: white;
-    font-weight: lighter;
-    box-shadow: 4px 4px 0px rgba(0,0,0,0.1); /* Efeito 3D sutil */
-
+    max-height: 450px; /* Limita altura para scroll */
+    overflow-y: auto;
 }
 
-/* Estilo da barra de rolagem (Chrome/Safari) */
-#horarios::-webkit-scrollbar {
+/* Customização da Barra de Rolagem */
+#horarios::-webkit-scrollbar, #lista::-webkit-scrollbar {
     width: 6px;
 }
-#horarios::-webkit-scrollbar-thumb {
-    background: #ccc;
+#horarios::-webkit-scrollbar-thumb, #lista::-webkit-scrollbar-thumb {
+    background: #ddd;
     border-radius: 10px;
 }
 
-/* Slots de Horário */
+/* ==========================================================================
+   Inputs de Formulário (Nome, Tel, etc)
+   ========================================================================== */
+#servico, #nome, #email, #telefone, #buscaTelefone {
+    width: 100%;
+    padding: 14px;
+    margin: 8px 0;
+    border: 2px solid #eee;
+    border-radius: 12px;
+    font-size: 16px;
+    background: #fdfdfd;
+    transition: border-color 0.3s;
+}
+
+#servico:focus, #nome:focus, #email:focus {
+    border-color: #000;
+    outline: none;
+}
+
+/* Estilo para os inputs com prefixo +55 */
+input#telefone, input#buscaTelefone {
+    padding-left: 50px !important;
+}
+
+/* ==========================================================================
+   Slots de Horário (Cards)
+   ========================================================================== */
 .slot {
     width: 100%;
     padding: 20px;
@@ -104,48 +136,118 @@ h3{
     font-weight: 600;
     text-align: center;
     transition: all 0.2s ease;
-    border: 1px solid transparent;
 }
 
 .livre {
     background: #f8f9fa;
     color: #222;
-    border-color: #eee;
+    border: 1px solid #eee;
     cursor: pointer;
 }
 
-.livre:hover, .livre.selecionado {
+.livre:hover {
     background: #000;
     color: #fff;
     transform: translateY(-2px);
 }
 
 .ocupado {
-    background: #ffebee;
-    color: #ef9a9a;
+    background: #fff0f0;
+    color: #ff8a80;
     text-decoration: line-through;
-    opacity: 0.6;
+    opacity: 0.7;
     cursor: not-allowed;
+    border: 1px dashed #ffcdd2;
 }
 
-/* Botão Final */
-button#agendar-btn {
+/* Especial para o Painel Administrativo */
+#lista .ocupado {
+    text-decoration: none !important;
+    opacity: 1;
+    color: #333;
+    border: 1px solid #ffcdd2;
+    text-align: left;
+}
+
+/* ==========================================================================
+   Botões
+   ========================================================================== */
+button {
     width: 100%;
-    max-width: 450px;
-    padding: 18px;
-    margin-top: 25px;
-    background: #000;
-    color: #fff;
-    border: none;
-    border-radius: 15px;
-    font-size: 18px;
+    padding: 16px;
+    border-radius: 12px;
+    font-size: 16px;
     font-weight: bold;
     cursor: pointer;
+    border: none;
+    transition: transform 0.1s, opacity 0.2s;
 }
 
-/* Ajuste Mobile */
+button:active {
+    transform: scale(0.98);
+}
+
+#agendar-btn {
+    background: #000;
+    color: #fff;
+    margin-top: 15px;
+}
+
+/* Botão de excluir no Admin */
+#lista button {
+    background: #ba1a1a;
+    color: white;
+    padding: 8px;
+    margin-top: 10px;
+    font-size: 14px;
+}
+
+/* ==========================================================================
+   Ajustes de Layout (WhatsApp e Mobile)
+   ========================================================================== */
 @media (max-width: 480px) {
-    .horarios-wrapper {
-        max-height: 50vh; /* Ocupa metade da tela no celular */
-    }
+    body { padding: 15px; }
+    #horarios, #lista { max-height: 400px; }
+}
+
+.date-controls {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+    max-width: 450px;
+    gap: 10px;
+}
+
+.data-display {
+    flex: 1;
+    background: white;
+    border: 2px solid #000;
+    border-radius: 12px;
+    padding: 15px;
+    text-align: center;
+    font-size: 18px;
+    font-weight: bold;
+    box-shadow: 4px 4px 0px rgba(0, 0, 0, 0.1);
+    text-transform: capitalize;
+}
+
+.btn-seta {
+    width: 55px !important;
+    height: 55px;
+    background: #000 !important;
+    color: #fff !important;
+    border-radius: 12px !important;
+    font-size: 20px !important;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 !important;
+    padding: 0 !important;
+}
+
+.btn-seta:disabled {
+    background: #ccc !important;
+    cursor: not-allowed;
+    box-shadow: none;
 }

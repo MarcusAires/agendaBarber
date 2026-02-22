@@ -1,18 +1,26 @@
 <!DOCTYPE html>
 <html lang="pt-br">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="style.css">
     <title>Painel Administrativo</title>
 </head>
+
 <body>
 
     <div class="data-container">
         <h2>Painel Barbeiro</h2>
         <label>Agenda do dia:</label>
-        <input type="date" id="data">
+        <div style="display: flex; align-items: center; justify-content: space-between; width: 100%; gap: 10px;">
+            <button type="button" class="btn-seta" onclick="alterarData(-1)">❮</button>
+            <div id="dataExibicao" class="data-display">...</div>
+            <button type="button" class="btn-seta" onclick="alterarData(1)">❯</button>
+        </div>
+        <input type="hidden" id="data">
     </div>
+    <div id="contador" style="margin-bottom: 15px; font-weight: bold; color: #666; text-align: center;"></div>
 
     <h3 id="contador"></h3>
 
@@ -24,7 +32,8 @@
         const key = "123segredo";
         const lista = document.getElementById("lista");
         const contador = document.getElementById("contador");
-        const input = document.getElementById("data");
+        const input = document.getElementById("data"); // Agora é o hidden
+        const display = document.getElementById("dataExibicao");
 
         const horarios = [
             "08:00", "08:30", "09:00", "09:30", "10:00", "10:30",
@@ -32,63 +41,87 @@
             "15:00", "15:30", "16:00", "16:30", "17:00", "17:30", "18:00"
         ];
 
-        // Data de hoje automática
-        const hoje = new Date();
-        const dataLocal = hoje.toISOString().split('T')[0];
-        input.value = dataLocal;
+        let dataAtual = new Date();
 
-        input.onchange = carregar;
-        carregar();
+        // Funções de Formatação
+        function formatarParaISO(date) {
+            const z = n => String(n).padStart(2, '0');
+            return `${date.getFullYear()}-${z(date.getMonth() + 1)}-${z(date.getDate())}`;
+        }
 
+        function formatarParaExibicao(date) {
+            return date.toLocaleDateString('pt-BR', {
+                weekday: 'short', day: '2-digit', month: 'short'
+            }).replace('.', '');
+        }
+
+        // Função que une a navegação com a sua busca original
+        function atualizarInterfaceData() {
+            input.value = formatarParaISO(dataAtual);
+            display.innerText = formatarParaExibicao(dataAtual);
+            carregar(); // Chama sua função original de busca
+        }
+
+        function alterarData(dias) {
+            dataAtual.setDate(dataAtual.getDate() + dias);
+            atualizarInterfaceData();
+        }
+
+        // Sua função original de carregar (mantive idêntica, só usa o novo input.value)
         async function carregar() {
-            const r = await fetch("/agenda/" + input.value, {
-                headers: { Authorization: key }
-            });
-            const dados = await r.json();
-            const ocupados = dados.length;
-            const livres = horarios.length - ocupados;
+            try {
+                const r = await fetch("/agenda/" + input.value, {
+                    headers: { Authorization: key }
+                });
+                const dados = await r.json();
+                const ocupados = dados.length;
+                const livres = horarios.length - ocupados;
 
-            contador.innerText = `Clientes: ${ocupados} | Livres: ${livres}`;
-            lista.innerHTML = "";
+                contador.innerText = `Clientes: ${ocupados} | Livres: ${livres}`;
+                lista.innerHTML = "";
 
-            horarios.forEach(h => {
-                const ag = dados.find(a => a.hora === h);
-                const div = document.createElement("div");
-                div.className = "slot " + (ag ? "ocupado" : "livre");
+                horarios.forEach(h => {
+                    const ag = dados.find(a => a.hora === h);
+                    const div = document.createElement("div");
+                    div.className = "slot " + (ag ? "ocupado" : "livre");
 
-                if (ag) {
-                    div.innerHTML = `
+                    if (ag) {
+                        div.innerHTML = `
                         <div style="font-size: 1.2rem; border-bottom: 1px solid #ef9a9a; margin-bottom: 5px;"><b>${h}</b></div>
                         <div style="text-decoration: none;">👤 ${ag.nome}</div>
                         <div style="font-size: 0.9rem; text-decoration: none;">✂️ ${ag.servico}</div>
                         <button onclick="del(${ag.id})" style="width: auto; padding: 5px 10px; font-size: 12px; background: #ba1a1a; margin-top: 10px;">Excluir</button>
                     `;
-                    // Removemos o line-through do texto no slot ocupado do admin para facilitar a leitura
-                    div.style.textDecoration = "none"; 
-                } else {
-                    div.innerHTML = `<b>${h}</b><br> <span style="font-weight: normal; opacity: 0.7;">Disponível</span>`;
-                }
-                lista.appendChild(div);
-            });
+                        div.style.textDecoration = "none";
+                    } else {
+                        div.innerHTML = `<b>${h}</b><br> <span style="font-weight: normal; opacity: 0.7;">Disponível</span>`;
+                    }
+                    lista.appendChild(div);
+                });
+            } catch (erro) {
+                console.error("Erro ao carregar agenda:", erro);
+            }
         }
 
+        // Sua função original de deletar
         async function del(id) {
-    // Se o confirm do navegador sumiu, você pode remover o 'if(confirm...)' 
-    // apenas para testar se a exclusão volta a funcionar:
-    
-    try {
-        const response = await fetch("/delete/" + id, {
-            method: "DELETE",
-            headers: { Authorization: key }
-        });
+            try {
+                const response = await fetch("/delete/" + id, {
+                    method: "DELETE",
+                    headers: { Authorization: key }
+                });
 
-        if (response.ok) {
-            carregar(); 
+                if (response.ok) {
+                    carregar();
+                }
+            } catch (erro) {
+                console.error("Erro ao excluir:", erro);
+            }
         }
-    } catch (erro) {
-        console.error("Erro ao excluir:", erro);
-    }
-}
+
+        // Inicia o Admin no dia de hoje
+        atualizarInterfaceData();
     </script>
 </body>
+
 </html>
