@@ -5,16 +5,18 @@ const horarios = [
 ];
 
 module.exports = function(app, db) {
-    app.get("/horarios/:data", (req, res) => {
-        db.all("SELECT hora FROM agendamentos WHERE data=?",
-            [req.params.data],
-            (err, rows) => {
-                if (err) return res.sendStatus(500);
+    app.get("/horarios/:data", async (req, res) => {
+        try {
+            const result = await db.query(
+                `SELECT hora FROM agendamentos WHERE data=$1`,
+                [req.params.data]
+            );
 
-                rows = rows || [];
-                const ocupados = rows.map(r => r.hora);
-                const livres = horarios.filter(h => !ocupados.includes(h));
-                res.json(livres);
-            });
+            const ocupados = result.rows.map(r => r.hora);
+            const livres = horarios.filter(h => !ocupados.includes(h));
+            res.json(livres);
+        } catch (err) {
+            res.sendStatus(500);
+        }
     });
 };

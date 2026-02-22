@@ -1,63 +1,65 @@
 module.exports = function (app, db) {
     // 1. Rota para Criar Agendamento
-    app.post("/agendar", (req, res) => {
-        // Recebendo os novos campos do formulário
+    app.post("/agendar", async (req, res) => {
         const { nome, telefone, email, servico, data, hora } = req.body;
 
-        // Validando se os campos obrigatórios existem
         if (!nome || !telefone || !data || !hora) {
             return res.status(400).send("Nome, telefone, data e hora são obrigatórios.");
         }
 
-        db.run(
-            "INSERT INTO agendamentos(nome, telefone, email, servico, data, hora) VALUES(?,?,?,?,?,?)",
-            [nome, telefone, email, servico, data, hora],
-            function (err) {
-                if (err) {
-                    // O erro geralmente ocorre por causa do UNIQUE(data, hora) no banco
-                    return res.status(400).send("Este horário já foi preenchido por outro cliente.");
-                }
-                
-                // Retornamos o ID para o cliente usar no link do WhatsApp (opcional agora)
-                res.json({ 
-                    msg: "Agendado com sucesso", 
-                    id: this.lastID 
-                });
-            }
-        );
+        try {
+            const result = await db.query(
+                `INSERT INTO agendamentos(nome, telefone, email, servico, data, hora)
+                 VALUES($1,$2,$3,$4,$5,$6)
+                 RETURNING id`,
+                [nome, telefone, email, servico, data, hora]
+            );
+
+            res.json({ 
+                msg: "Agendado com sucesso", 
+                id: result.rows[0].id 
+            });
+        } catch (err) {
+            // UNIQUE(data,hora) dispara erro
+            return res.status(400).send("Este horário já foi preenchido por outro cliente.");
+        }
     });
 
-    // 2. Rota para Buscar Agendamentos pelo Telefone (NOVA ROTA)
-    app.get("/meus-agendamentos/:telefone", (req, res) => {
+    // 2. Rota para Buscar Agendamentos pelo Telefone
+    app.get("/meus-agendamentos/:telefone", async (req, res) => {
         const telefone = req.params.telefone;
-        
-        db.all(
-            "SELECT id, data, hora, servico FROM agendamentos WHERE telefone = ? ORDER BY data DESC",
-            [telefone],
-            (err, rows) => {
-                if (err) {
-                    return res.status(500).send("Erro ao buscar agendamentos.");
-                }
-                res.json(rows || []);
-            }
-        );
+
+        try {
+            const result = await db.query(
+                `SELECT id, data, hora, servico 
+                 FROM agendamentos 
+                 WHERE telefone=$1 
+                 ORDER BY data DESC`,
+                [telefone]
+            );
+            res.json(result.rows);
+        } catch (err) {
+            res.status(500).send("Erro ao buscar agendamentos.");
+        }
     });
 
     // 3. Rota para Cancelar Agendamento
-    app.delete("/cancelar/:id", (req, res) => {
+    app.delete("/cancelar/:id", async (req, res) => {
         const id = req.params.id;
 
-        db.run("DELETE FROM agendamentos WHERE id=?", [id], function (err) {
-            if (err) {
-                return res.status(500).send("Erro interno ao tentar cancelar.");
-            }
-            
-            // Verificamos se alguma linha foi realmente deletada
-            if (this.changes === 0) {
+        try {
+            const result = await db.query(
+                `DELETE FROM agendamentos WHERE id=$1`,
+                [id]
+            );
+
+            if (result.rowCount === 0) {
                 return res.status(404).send("Agendamento não encontrado.");
             }
 
             res.send("Agendamento cancelado com sucesso!");
-        });
+        } catch (err) {
+            res.status(500).send("Erro interno ao tentar cancelar.");
+        }
     });
 };

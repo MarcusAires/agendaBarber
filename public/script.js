@@ -181,7 +181,7 @@ async function cancelarPorId(id) {
             const res = await fetch("/cancelar/" + id, { method: "DELETE" });
             if (res.ok) {
                 alert("Cancelado!");
-                buscarPorTelefone(); // Recarrega a listinha de agendamentos dele
+                buscarPorTelefone(); // Recarrega a listinha de agendamentos 
                 carregar(); // Recarrega os horários vagos no topo
             }
         } catch (erro) {
