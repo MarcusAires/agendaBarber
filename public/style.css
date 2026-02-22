@@ -1,0 +1,151 @@
+/* Global e Centralização */
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    font-family: 'Segoe UI', Roboto, sans-serif;
+    background-color: #f0f2f5;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 20px;
+    min-height: 100vh;
+}
+
+/* Área de Seleção de Data (Estilizada à Esquerda/Topo) */
+.data-container {
+    width: 100%;
+    max-width: 450px;
+    margin-bottom: 25px;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start; /* Alinha o label e input à esquerda */
+}
+
+label {
+    font-size: 14px;
+    font-weight: bold;
+    color: #666;
+    margin-bottom: 8px;
+    text-transform: uppercase;
+}
+
+input[type="date"] {
+    appearance: none;
+    -webkit-appearance: none;
+    width: 100%;
+    padding: 15px;
+    border: 2px solid #000;
+    border-radius: 12px;
+    font-size: 18px;
+    font-weight: bold;
+    background: white;
+    cursor: pointer;
+    box-shadow: 4px 4px 0px rgba(0,0,0,0.1); /* Efeito 3D sutil */
+}
+
+/* Container que segura a lista */
+.horarios-wrapper {
+    width: 100%;
+    max-width: 450px;
+    background: white;
+    border-radius: 20px;
+    overflow: hidden; /* Garante que os cards não 'vazem' pelas bordas arredondadas */
+    box-shadow: 0 10px 25px rgba(0,0,0,0.05);
+    margin: 0 auto;
+}
+
+/* A lista interna onde o scroll acontece */
+#horarios, #lista {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    padding: 20px;
+    max-height: 450px; /* Altura fixa para ativar o scroll */
+    overflow-y: auto;  /* Habilita a rolagem vertical */
+}
+h3{
+   margin: 10px; 
+}
+#servico, #nome, #telefone, #email{
+    display: flex;
+    position: center;
+    margin: 10px;
+    border-radius: 12px;
+        appearance: none;
+    -webkit-appearance: none;
+        padding: 10px;
+    border: 1px solid #000;
+    font-size: 12px;
+    background: white;
+    font-weight: lighter;
+    box-shadow: 4px 4px 0px rgba(0,0,0,0.1); /* Efeito 3D sutil */
+
+}
+
+/* Estilo da barra de rolagem (Chrome/Safari) */
+#horarios::-webkit-scrollbar {
+    width: 6px;
+}
+#horarios::-webkit-scrollbar-thumb {
+    background: #ccc;
+    border-radius: 10px;
+}
+
+/* Slots de Horário */
+.slot {
+    width: 100%;
+    padding: 20px;
+    border-radius: 15px;
+    font-size: 18px;
+    font-weight: 600;
+    text-align: center;
+    transition: all 0.2s ease;
+    border: 1px solid transparent;
+}
+
+.livre {
+    background: #f8f9fa;
+    color: #222;
+    border-color: #eee;
+    cursor: pointer;
+}
+
+.livre:hover, .livre.selecionado {
+    background: #000;
+    color: #fff;
+    transform: translateY(-2px);
+}
+
+.ocupado {
+    background: #ffebee;
+    color: #ef9a9a;
+    text-decoration: line-through;
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+/* Botão Final */
+button#agendar-btn {
+    width: 100%;
+    max-width: 450px;
+    padding: 18px;
+    margin-top: 25px;
+    background: #000;
+    color: #fff;
+    border: none;
+    border-radius: 15px;
+    font-size: 18px;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+/* Ajuste Mobile */
+@media (max-width: 480px) {
+    .horarios-wrapper {
+        max-height: 50vh; /* Ocupa metade da tela no celular */
+    }
+}
