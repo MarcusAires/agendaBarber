@@ -29,8 +29,17 @@
     </div>
 
     <script>
-        const key = "123segredo";
-        const lista = document.getElementById("lista");
+        // No admin.html
+// Tenta pegar a senha salva, se não tiver, pergunta ao usuário
+let key = localStorage.getItem("admin_key");
+
+if (!key) {
+    key = prompt("Digite a senha de acesso:");
+    localStorage.setItem("admin_key", key);
+}
+
+const lista = document.getElementById("lista");
+// ... resto do seu código ...
         const contador = document.getElementById("contador");
         const input = document.getElementById("data"); // Agora é o hidden
         const display = document.getElementById("dataExibicao");
@@ -73,6 +82,12 @@
                 const r = await fetch("/agenda/" + input.value, {
                     headers: { Authorization: key }
                 });
+                if (r.status === 401) {
+            alert("Senha incorreta!");
+            localStorage.removeItem("admin_key"); // Limpa a senha errada
+            location.reload(); // Recarrega para pedir de novo
+            return;
+        }
                 const dados = await r.json();
                 const ocupados = dados.length;
                 const livres = horarios.length - ocupados;
